@@ -27,6 +27,7 @@ _by RecklessApotheosis_
 
 * 2023-02-12 – Initial Draft
 * 2023-02-14 - Updates from Contributors, footnote formatting fixes
+* 2023-02-26 - Additional content
 
 # Contributions
 Thanks to the Lightning innovators who assisted with peer review of this document:
@@ -40,15 +41,16 @@ Thanks to the Lightning innovators who assisted with peer review of this documen
 # Terminology
 * BTC - short for Bitcoin
 * Channel - the term for the 2-of-2 multisignature transaction that creates the smart contract that establishes an open funding channel between two nodes.
-* Cold Wallet - 
-* Hot Wallet - 
-* Custodial Wallet - 
-* Non-Custodial Wallet - 
+* Eltoo - A proposed enforcement layer for LN that allows any later channel state to replace any earlier channel state.
+* Cold Wallet - Typically reffered to as a Bitcoin private key or seed phrase which may or may not be attached to software, but whose hosting device is not ever connected to the Internet. More broadly some users will permit usage of the phrase cold wallet to also refer to hardware wallets which require physical access to transmit funds, even though they are intermittently attached to the Internet. Operating a Lightning Node funded from a cold wallet is possible but presents technical challenges.
+* Hot Wallet - As above, but a wallet software or device which keeps a decrypted private key in memory, at the ready to transact Bitcoin in realtime. Often specific prviate key signing operations will still require additional verification: Two Factor Authentication, a PIN, a passphrase, etc. Typically a live Lightning Node operates on top of a hot wallet.
+* Custodial Wallet - A Bitcoin on-chain wallet where all of the funds are held on public keys for which the owner does not hold the private keys or seedphrase. For Lightning, this often refers to Bitcoin on the Lightning network that are held in a Lightning Wallet on a channel hosted by a node that the owner does not operate nor have access to close the channel.
+* Non-Custodial Wallet - A Bitcoin or Lightning Wallet where the seedphrase for the funds on the wallet, and any hot Lightning channels opened, are in full control of the person or entity that owns the funds. There is no 3rd party "custodian" between the funds and their owner.
 * HTCL - acronym for Hashed Timelock Contract, the basis of all Lightning Network off-chain transactions.
 * Satoshi - A Satoshi (or sat) is the smallest indivisible on-chain unit of measure of Bitcoin. There are 100 million sats per Bitcoin, so a sat is 100-millionth of a Bitcoin.
-* SCB - acronym for Static Channel Backup, the basis of channel recovery
-* Taproot - 
-* Watchtower - 
+* SCB - Acronym for Static Channel Backup, the basis of channel recovery
+* Taproot - This is privacy and make it more scalable by allowing multiple parties to sign a single transaction, reducing the time required to open channels.
+* Watchtower - A relationship between two nodes to protect both nodes from participants attempt to defraud a node by broadcasting an invalid state.
 
 # Disclosures
 
@@ -60,11 +62,11 @@ This is a best effort high level assessment of the potential risk exposure at ru
 
 ## Bitcoin
 
-Bitcoin is a decentralized currency secured by proof-of-work providing essentially a protocol for economic movement that is disassociated from any single government’s control. Bitcoin blocks are secured by the electrical grids of miners around the globe, which results in a block emission fixed to average 1 block of transactions every 10 minutes (this is an average over time, so some blocks confirm mere seconds after the previous block, and one took 122 minutes!<sup>[ii](https://u.today/bitcoin-just-recorded-longest-time-between-two-blocks-in-almost-10-years)</sup>). The mining difficulty retargets as the global hashrate changes roughly every 2 weeks to maintain that 10 minute average confirmation time. Each block can contain a maximum of 4MB of data, which on average is about 2,280<sup>[iii](https://ycharts.com/indicators/bitcoin_average_transactions_per_block)</sup> transactions per block, or 3.8 transactions per second. Bitcoin has a small language of only 186 Opcodes<sup>[iv](https://wiki.bitcoinsv.io/index.php/Opcodes_used_in_Bitcoin_Script)</sup> and changes presented as either hard-forks or soft-forks come through extensive validation & conversation via the formal BIP<sup>[v](https://github.com/bitcoin/bips)</sup> Process.
+Bitcoin is a decentralized currency secured by proof-of-work providing essentially a protocol for economic movement that is disassociated from any single government’s control. Bitcoin blocks are secured by the electrical grids of miners around the globe, which results in a block emission fixed to average 1 block of transactions every 10 minutes (this is an average over time, so some blocks confirm mere seconds after the previous block, and one took 122 minutes!<sup>[ii](https://u.today/bitcoin-just-recorded-longest-time-between-two-blocks-in-almost-10-years)</sup>). The mining difficulty adjusts roughly every 2 weeks, compensating for global hashrate changes, to maintain that 10 minute average confirmation time. Each block can contain a maximum of 4MB of data, which on average is about 2,280<sup>[iii](https://ycharts.com/indicators/bitcoin_average_transactions_per_block)</sup> transactions per block, or 3.8 transactions per second. Bitcoin has a small intentionally non-turing complete language<sup>[iv](https://wiki.bitcoinsv.io/index.php/Opcodes_used_in_Bitcoin_Script)</sup>. The deliberately limited scope of the Bitcoin language serves as a component in its security model. Changes to Bitcoin are presented as either hard-forks or soft-forks come through extensive validation & conversation via the formal BIP<sup>[v](https://github.com/bitcoin/bips)</sup> Process.
 
 ## Layer 2
 
-Layer 2 (L2) refers to any technology built upon an existing blockchain (not Bitcoin specific) designed typically to remediate perceived deficiencies or to bypass specific safeguards in the underlying protocol by building atop it, thus leveraging its base value proposition.
+Layer 2 (L2) refers to any technology built upon an existing blockchain (not Bitcoin specific) designed typically to remediate perceived deficiencies or to bypass specific safeguards in the underlying protocol by building atop it, thus leveraging its base value proposition. The increased risk inherent in these second layer solutions requires greater caution with funds kept on them, definitely never expose more capital on an L2 network than you are prepared to lose.
 
 ## Lightning
 
@@ -82,7 +84,9 @@ For Lightning, the infrastructure complexity begins with the Bitcoin Core softwa
 
 ## Node Operation
 
-As an explorative technology, Lightning also has a proposal system like Bitcoin’s BIPS, called BOLTs<sup>[vii](https://github.com/lightning/bolts)</sup> but unlike Bitcoin, lacks the rigorous demands for backward or cross-compatibility, and is considered (as a more experimental platform) acceptable to make big changes more rapidly. There are currently two main node servers used in the hobbyist & mid-sized node operation space: LND by Lightning Labs and CLN by Core Lightning. Additionally, there are more specialized Lightning implementations used by larger service providers and other more custom applications, examples of these would be LDK and Eclair. These Lightning implementations have minor inconsistencies in which BOLTs they implement, and the manner by which their supported BOLTs are implemented, causing interoperability issues at times. As an example, both LND and CLN support opening balanced channels, however, a balanced Lightning Channel cannot currently be opened between an LND-based server and a CLN-based sever. Additionally, in a commercial node there are considerations for routing nodes (designed to provide liquidity to the network) and for custodial nodes (providing wallets for individual users). These considerations involve the installation of additional 3rd party software such as LNDg, balanceofsatoshis, LNBits, electrs plugins, etc. This additional software depends on Macaroons<sup>[viii](https://docs.lightning.engineering/the-lightning-network/lsat/macaroons)</sup> for authorizing varying levels of security access to wallet operations, a process which is proven secure. However, an inexperienced node operator may create a macaroon for a tool with excessive permissions granted. Likewise inexperienced node operators often opt to save the password to decrypt the node’s private key on disk so it unlocks on boot, and often fail to secure the filesystem sufficiently to protect against targeted attacks.
+As an explorative technology, Lightning also has a proposal system like Bitcoin’s BIPS, called BOLTs<sup>[vii](https://github.com/lightning/bolts)</sup> but unlike Bitcoin, lacks the rigorous demands for backward or cross-compatibility, and is considered (as a more experimental platform) acceptable to make big changes more rapidly. There are currently two main node servers used in the hobbyist & mid-sized node operation space: LND by Lightning Labs and CLN by Core Lightning. Additionally, there are more specialized Lightning implementations used by larger service providers and other more custom applications, examples of these would be LDK and Eclair. These Lightning implementations have minor inconsistencies in which BOLTs they implement, and the manner by which their supported BOLTs are implemented, causing interoperability issues at times.
+
+For example, both LND and CLN support opening balanced channels, however, a balanced Lightning Channel cannot currently be opened between an LND-based server and a CLN-based sever. Additionally, in a commercial node there are considerations for routing nodes (designed to provide liquidity to the network) and for custodial nodes (providing wallets for individual users). These considerations involve the installation of additional 3rd party software such as LNDg, balanceofsatoshis, LNBits, electrs plugins, etc. This additional software depends on Macaroons<sup>[viii](https://docs.lightning.engineering/the-lightning-network/lsat/macaroons)</sup> for authorizing varying levels of security access to wallet operations, a process which is proven secure. However, an inexperienced node operator may create a macaroon for a tool with excessive permissions granted. Likewise inexperienced node operators often opt to save the password to decrypt the node’s private key on disk so it unlocks on boot, and often fail to secure the filesystem sufficiently to protect against targeted attacks.
 
 The additional software installed to extend the functionality of the Lightning Node has its own dependencies and is often updated rapidly. Like all modern system administration, many depend on nodejs, npm, or docker hub, and pull in a considerable number of unvetted dependencies. Often, security update notices come through non-traditional avenues such as Twitter, Telegram, or Substack articles. When bugs are discovered, they are often 0-day exploited by the researcher, causing immediate issues with noderunners across the domain. To their credit, software developers stay on top of the technology, and push out updates within hours of issues being reported. Remediation however then becomes incumbent upon the node operator and failure to rapidly address the issue can result in node downtime, the force closure of channels, or the theoretical loss of funds by a sophisticated attack mechanism (the author is not aware of any such successful exploits as of the writing of this document).
 
@@ -98,7 +102,9 @@ For the custodial application vector, this is the same as with any other applica
 
 ## Examples
 
-There have been numerous technical challenges as the Lightning Network has grown since 2018. These have had varying levels of success, but are extremely well documented across multiple sources<sup>[ix](https://github.com/davidshares/Lightning-Network)</sup>. A couple good examples that highlight the types of issues the network faces are presented here.
+There have been numerous technical challenges as the Lightning Network has grown since 2018. These have had varying levels of success, but are extremely well documented across multiple sources<sup>[ix](https://github.com/davidshares/Lightning-Network)</sup>. A few good examples that highlight the types of issues the network faces are presented here.
+
+On October 4th, 2022 the author's node, RecklessApotheosis, had been operating for about a year and a half on a Raspberry Pi with a USB attached 1 Terabyte SSD, using the turn-key Umbrel Lightning Node software. The node was behaving poorly, with frequent software crashes of LND, with transactions failing to route. Often a reboot would resolve the issue. This went on for about 2 weeks, and the author was remiss in taking a more assertive handle on the situation, and on October 4th, when the Pi had locked up fully and required a hard reboot by pulling power, when the node came back up, the bolt channels.db database had been corrupted. Despite significant troubleshooting and forensics on the file and attempts at restoring from backups, the node's current channelstate was irrecoverable. The node was rebuilt on x86 hardware with dual m.2 SSDs using RAID1. After the hardware rebuild, the private keys for the node were restored on the new hardware, and recovery from SCB was begun. As this process force-closed nearly 100 channels, it was a very expensive on-chain event for the node, as well as time consuming, and damaging to the noderunner's community goodwill as a competent noderunner. It took roughly 2 months to rebuild most of the channels lost and get the node back into shape as a routing node. The culprit of the failures on the Pi was a failing USB-C power supply, a relatively inexpensive and easy fix that could have averted months of rebuilding & costs associated with the node failure.
 
 On October 9th, 2022 in Bitcoin block 757922<sup>[x](https://mempool.space/tx/7393096d97bfee8660f4100ffd61874d62f9a65de9fb6acf740c4c386990ef73)</sup> a security researcher known on Twitter as Buraq<sup>[xi](https://twitter.com/brqgoo/status/1579216353780957185)</sup> announced that he had successfully crafted a 998-of-999 tapscript multisig transation. This transaction triggered a bug in the popular LND Lightning server that caused it to fail to synchronize its on-chain wallet at startup, so all nodes rebooted after that transaction would fail to start. The issue was reported<sup>[xii](https://github.com/lightningnetwork/lnd/issues/7002)</sup> to the LND team within minutes, and was fixed and pushed within 5 hours, active nodes had already begun updating from the pending pull request<sup>[xiii](https://github.com/lightningnetwork/lnd/pull/7004)</sup>, and although unattended nodes eventually went dark until their noderunners updated them or shut them down, the event itself was well handled and did not result in significant downtime for LND based nodes. As a research project the news it generated<sup>[xiv](https://protos.com/taproot-bug-freezes-bitcoin-inside-lightning-network-for-hours/)</sup> highlighted the need for improved backup channel options for node operators such as through the employment of watchtower services.
 
@@ -112,7 +118,9 @@ As a result of being uniquely situated at the inflection point in global finance
 
 In addition to facing the challenges the legacy financial system brings, Lightning also brings the complexity of building within an emergent ecosystem of cryptocurrency, some of which as detailed above with the complexity in developing this software, in successfully running it with real capital behind it, and in navigating the potential regulatory and legislative morass that is rapidly growing around these new agile payment tools.
 
-Even with these daunting challenges considered, the Lightning Network represents such a significant “warp speed” improvement upon existing financial systems across key value propositions in velocity, user cost, micropayment capacity, and resistance to debasement through inflation. These benefits have led multiple financial institutions such as River Financial<sup>[xxii](https://www.youtube.com/watch?v=Itkcurc0Bms)</sup>, Block (formerly Square)<sup>[xxiii](https://www.youtube.com/watch?v=rSSnyJpFNZU)</sup>, Strike<sup>[xxiv](https://www.youtube.com/watch?v=dD2-T7TX2rk)</sup>, and even MicroStrategy<sup>[xxv](https://www.youtube.com/watch?v=Cgdwme_GhIw)</sup> to make heavy investments in this nascent environment, all of which with great success. These efforts seek to challenge the status quo and disrupt it at such a rapid pace, that the only avenue the existing institutions have at their disposal is to seek legal action to prevent its adoption & growth. However, just as unsuccessful as hacking Lightning so far has been, legislative action has been equally challenging due to the fact that its underpinning technology, Bitcoin, is not a security per the SEC, and distinct from all other cryptocurrencies in its truly decentralized nature and Lightning avoids the foibles that banking is currently suffering from through its overt reliance on fractional reserve banking and under-collateralized loan instruments. By creating a sound alternative to the legacy financial system, and improving upon it not merely in confidence in the currency but also in the other areas mentioned above, it is uniquely positioned to grow extremely rapidly, consuming market share from slower moving incumbents adapting poorly to the changing financial environment. Although there will be additional security issues, complexity and cost of running a routing node will increase, and the market will not be without its own challenges, it remains in the author’s opinion, a very bright new avenue for financial technological innovation.
+Even with these daunting challenges considered, the Lightning Network represents such a significant “warp speed” improvement upon existing financial systems across key value propositions in velocity, user cost, micropayment capacity, and resistance to debasement through inflation. These benefits have led multiple financial institutions such as River Financial<sup>[xxii](https://www.youtube.com/watch?v=Itkcurc0Bms)</sup>, Block (formerly Square)<sup>[xxiii](https://www.youtube.com/watch?v=rSSnyJpFNZU)</sup>, Strike<sup>[xxiv](https://www.youtube.com/watch?v=dD2-T7TX2rk)</sup>, and even MicroStrategy<sup>[xxv](https://www.youtube.com/watch?v=Cgdwme_GhIw)</sup> to make heavy investments in this nascent environment, all of which with great success.
+
+These efforts seek to challenge the status quo and disrupt it at such a rapid pace, that the only avenue the existing institutions have at their disposal is to seek legal action to prevent its adoption & growth. However, just as unsuccessful as hacking Lightning so far has been, legislative action has been equally challenging due to the fact that its underpinning technology, Bitcoin, is not a security per the SEC, and distinct from all other cryptocurrencies in its truly decentralized nature and Lightning avoids the foibles that banking is currently suffering from through its overt reliance on fractional reserve banking and under-collateralized loan instruments. By creating a sound alternative to the legacy financial system, and improving upon it not merely in confidence in the currency but also in the other areas mentioned above, it is uniquely positioned to grow extremely rapidly, consuming market share from slower moving incumbents adapting poorly to the changing financial environment. Although there will be additional security issues, complexity and cost of running a routing node will increase, and the market will not be without its own challenges, it remains in the author’s opinion, a very bright new avenue for financial technological innovation.
 
 # Additional Reading
 
@@ -132,28 +140,28 @@ Some papers relevant to the security complexities facing the Lightning network h
 
 # Endnotes
 
-* <sup>[i](https://amboss.space/c/reckless)</sup>
-* <sup>[ii](https://u.today/bitcoin-just-recorded-longest-time-between-two-blocks-in-almost-10-years)</sup>
-* <sup>[iii](https://ycharts.com/indicators/bitcoin_average_transactions_per_block)</sup>
-* <sup>[iv](https://wiki.bitcoinsv.io/index.php/Opcodes_used_in_Bitcoin_Script)</sup>
-* <sup>[v](https://github.com/bitcoin/bips)</sup>
-* <sup>[vi](https://www.computer.org/csdl/proceedings-article/csf/2020/09155145/1m1jOxuJKF2)</sup>
-* <sup>[vii](https://github.com/lightning/bolts)</sup>
-* <sup>[viii](https://docs.lightning.engineering/the-lightning-network/lsat/macaroons)</sup>
-* <sup>[ix](https://github.com/davidshares/Lightning-Network)</sup>
-* <sup>[x](https://mempool.space/tx/7393096d97bfee8660f4100ffd61874d62f9a65de9fb6acf740c4c386990ef73)</sup>
-* <sup>[xi](https://twitter.com/brqgoo/status/1579216353780957185)</sup>
-* <sup>[xii](https://github.com/lightningnetwork/lnd/issues/7002)</sup>
-* <sup>[xiii](https://github.com/lightningnetwork/lnd/pull/7004)</sup>
-* <sup>[xiv](https://protos.com/taproot-bug-freezes-bitcoin-inside-lightning-network-for-hours/)</sup>
-* <sup>[xv](https://mempool.space/tx/73be398c4bdc43709db7398106609eea2a7841aaf3a4fa2000dc18184faa2a7e)</sup>
-* <sup>[xvi](https://twitter.com/brqgoo/status/1587397646125260802)</sup>
-* <sup>[xvii](https://github.com/lightningnetwork/lnd/issues/7096)</sup>
-* <sup>[xviii](https://github.com/lightningnetwork/lnd/pull/7098)</sup>
-* <sup>[xix](https://burakkeceli.medium.com/channel-addresses-bd85e9ab8fe1)</sup>
-* <sup>[xx](https://coinunited.io/news/en/2023-01-04/crypto/btc-blockchain-processed-over-8-trillion-in-transactions-last-year-as-bitcoin-soars)</sup>
-* <sup>[xxi](https://www.theblock.co/post/208817/lightning-network-reaches-all-time-high-in-bitcoin-capacity)</sup>
-* <sup>[xxii](https://www.youtube.com/watch?v=Itkcurc0Bms)</sup>
-* <sup>[xxiii](https://www.youtube.com/watch?v=rSSnyJpFNZU)</sup>
-* <sup>[xxiv](https://www.youtube.com/watch?v=dD2-T7TX2rk)</sup>
-* <sup>[xxv](https://www.youtube.com/watch?v=Cgdwme_GhIw)</sup>
+* [i](https://amboss.space/c/reckless)
+* [ii](https://u.today/bitcoin-just-recorded-longest-time-between-two-blocks-in-almost-10-years)
+* [iii](https://ycharts.com/indicators/bitcoin_average_transactions_per_block)
+* [iv](https://wiki.bitcoinsv.io/index.php/Opcodes_used_in_Bitcoin_Script)
+* [v](https://github.com/bitcoin/bips)
+* [vi](https://www.computer.org/csdl/proceedings-article/csf/2020/09155145/1m1jOxuJKF2)
+* [vii](https://github.com/lightning/bolts)
+* [viii](https://docs.lightning.engineering/the-lightning-network/lsat/macaroons)
+* [ix](https://github.com/davidshares/Lightning-Network)
+* [x](https://mempool.space/tx/7393096d97bfee8660f4100ffd61874d62f9a65de9fb6acf740c4c386990ef73)
+* [xi](https://twitter.com/brqgoo/status/1579216353780957185)
+* [xii](https://github.com/lightningnetwork/lnd/issues/7002)
+* [xiii](https://github.com/lightningnetwork/lnd/pull/7004)
+* [xiv](https://protos.com/taproot-bug-freezes-bitcoin-inside-lightning-network-for-hours/)
+* [xv](https://mempool.space/tx/73be398c4bdc43709db7398106609eea2a7841aaf3a4fa2000dc18184faa2a7e)
+* [xvi](https://twitter.com/brqgoo/status/1587397646125260802)
+* [xvii](https://github.com/lightningnetwork/lnd/issues/7096)
+* [xviii](https://github.com/lightningnetwork/lnd/pull/7098)
+* [xix](https://burakkeceli.medium.com/channel-addresses-bd85e9ab8fe1)
+* [xx](https://coinunited.io/news/en/2023-01-04/crypto/btc-blockchain-processed-over-8-trillion-in-transactions-last-year-as-bitcoin-soars)
+* [xxi](https://www.theblock.co/post/208817/lightning-network-reaches-all-time-high-in-bitcoin-capacity)
+* [xxii](https://www.youtube.com/watch?v=Itkcurc0Bms)
+* [xxiii](https://www.youtube.com/watch?v=rSSnyJpFNZU)
+* [xxiv](https://www.youtube.com/watch?v=dD2-T7TX2rk)
+* [xxv](https://www.youtube.com/watch?v=Cgdwme_GhIw)
