@@ -47,7 +47,7 @@ Thanks to the Lightning innovators who assisted with peer review of this documen
 * Hot Wallet - As above, but a wallet software or device which keeps a decrypted private key in memory, at the ready to transact Bitcoin in realtime. Often specific prviate key signing operations will still require additional verification: Two Factor Authentication, a PIN, a passphrase, etc. Typically a live Lightning Node operates on top of a hot wallet.
 * Custodial Wallet - A Bitcoin on-chain wallet where all of the funds are held on public keys for which the owner does not hold the private keys or seedphrase. For Lightning, this often refers to Bitcoin on the Lightning network that are held in a Lightning Wallet on a channel hosted by a node that the owner does not operate nor have access to close the channel.
 * Non-Custodial Wallet - A Bitcoin or Lightning Wallet where the seedphrase for the funds on the wallet, and any hot Lightning channels opened, are in full control of the person or entity that owns the funds. There is no 3rd party "custodian" between the funds and their owner.
-* HTCL - acronym for Hashed Timelock Contract, the basis of all Lightning Network off-chain transactions.
+* HTLC - acronym for Hashed Timelock Contract, the basis of all Lightning Network off-chain transactions.
 * Satoshi - A Satoshi (or sat) is the smallest indivisible on-chain unit of measure of Bitcoin. There are 100 million sats per Bitcoin, so a sat is 100-millionth of a Bitcoin.
 * SCB - Acronym for Static Channel Backup, the basis of channel recovery
 * Taproot - This is privacy and make it more scalable by allowing multiple parties to sign a single transaction, reducing the time required to open channels.
